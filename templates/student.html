@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='student.css')}}">
+</head>
+<body>
+    <div class="container">
+        <h1>Available Questions</h1>
+        <ul id="questionList">
+            {% for question in questions %}
+            <li>
+                <a href="/editor/{{ question.id }}">{{ question.title }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
