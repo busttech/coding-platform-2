@@ -4,18 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard</title>
-    <link rel="stylesheet" href="{{url_for('static', filename='student.css')}}">
+    <!-- Google Font for improved typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='student.css') }}">
 </head>
 <body>
+    <header>
+        <div class="navbar">
+            <h2 class="logo">Student Dashboard</h2>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="#">Profile</a></li>
+                    <li><a href="#">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
     <div class="container">
         <h1>Available Questions</h1>
-        <ul id="questionList">
+        <div class="question-cards">
             {% for question in questions %}
-            <li>
-                <a href="/editor/{{ question.id }}">{{ question.title }}</a>
-            </li>
+            <div class="card">
+                <a href="/editor/{{ question.id }}" class="card-link">
+                    <h3>{{ question.title }}</h3>
+                    <p class="description">{{ question.description[:100] }}...</p>
+                    <div class="view-btn">Start Coding</div>
+                </a>
+            </div>
             {% endfor %}
-        </ul>
+        </div>
     </div>
+
 </body>
 </html>

@@ -48,7 +48,9 @@ button {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    margin-right: 10px; /* Add some spacing between buttons */
 }
+
 button:hover {
     background-color: #45a049;
 }

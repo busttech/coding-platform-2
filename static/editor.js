@@ -6,7 +6,30 @@ const form = document.getElementById('codeForm');
 const warningMessage = document.getElementById('warningMessage');
 let warningCount = 0;
 let warningCoun = 0;
+function isFullScreen() {
+    return window.innerWidth === screen.width && window.innerHeight === screen.height;
+}
+
 function handleScreenResize() {
+    if (isFullScreen()) {
+        // Enable code editor if full screen
+        codeArea.disabled = false;
+        warningMessage.style.display = 'none';
+    } else {
+        // Disable code editor if not full screen
+        codeArea.disabled = true;
+        codeArea.value = ""; // Optional: Clear the editor
+        warningMessage.textContent = "Code editor is disabled because the window is not in full screen.";
+        warningMessage.style.display = 'block';
+    }
+}
+
+// Add event listener for window resize
+window.addEventListener('resize', handleScreenResize);
+
+// Initial check when the page loads
+handleScreenResize();
+function handleScreenResize1() {
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
 
@@ -25,10 +48,10 @@ function handleScreenResize() {
 }
 
 // Add event listener for window resize
-window.addEventListener('resize', handleScreenResize);
+window.addEventListener('resize', handleScreenResize1);
 
 // Call the function initially to check the screen size on page load
-handleScreenResize();
+handleScreenResize1();
 runCodeBtn.addEventListener('click', async (event) => {
     event.preventDefault(); // Prevent form submission
     const code = codeArea.value;
@@ -39,7 +62,7 @@ runCodeBtn.addEventListener('click', async (event) => {
         warningMessage.style.display = 'block';
         
         // Refresh the page after 3 warnings
-        if (warningCoun >= 3) {
+        if (warningCoun >= 5) {
             alert('You have received 3 warnings. The page will now refresh.');
             window.location.reload(); // Refresh the page
         }
