@@ -6,7 +6,11 @@ import os
 import tempfile
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:tarun@localhost/co12'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CA_CERT_PATH = os.path.join(BASE_DIR, 'certs/isrgrootx1.pem')
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    f'mysql+pymysql://3QkyK3w5GoLuPjo.root:r8jhtPzQbNRtJaSF@gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/test?ssl_ca={CA_CERT_PATH}'
+)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 app.secret_key = os.urandom(24)
@@ -28,7 +32,7 @@ class Submission(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_code = db.Column(db.Text, nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
-    result = db.Column(db.String, nullable=False)
+    result = db.Column(db.String(16), nullable=False)
 class SubmissionAll(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_code = db.Column(db.Text, nullable=False)

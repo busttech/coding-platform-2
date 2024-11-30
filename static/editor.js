@@ -75,11 +75,17 @@ submitCodeBtn.addEventListener('click', async (event) => {
 
             // Display only failed test cases and stop once one fails
             let failedResultsHtml = '<ul>';
+            let pas = 0;
             for (let result of data.results) {
                 const { input, expected, output, passed } = result;
+                if(passed){
+                    pas++;
+                }
                 if (!passed) {
+                    pas++
                     failedResultsHtml += `
                         <li style="color: red;">
+                            <strong>Test Case Number:</strong>${pas} <br>
                             <strong>Input:</strong> ${input} <br>
                             <strong>Expected Output:</strong> ${expected} <br>
                             <strong>Output:</strong> ${output} <br>
