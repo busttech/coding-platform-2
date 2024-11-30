@@ -7,6 +7,18 @@
     <link rel="stylesheet" href="{{url_for('static', filename='editor.css')}}">
 </head>
 <body>
+    <header>
+        <div class="navbar">
+            <h2 class="logo">Students Dashboard</h2>
+            <nav>
+                <ul>
+                    <li><a href="/"><i class="fas fa-home"></i>Home</a></li>
+                    <li><a href="/student"><i class="fas fa-file-alt"></i>Questions</a></li>
+                    <li><a href="/logout"><i class="fas fa-sign-out-alt"></i>Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
     <div class="container">
         <div class="description-section">
             <h2>{{ question.title }}</h2>

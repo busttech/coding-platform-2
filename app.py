@@ -95,7 +95,15 @@ def showallquestions():
 def editor(question_id):
     question = Question.query.get_or_404(question_id)
     return render_template('editor.html', question=question)
-
+@app.route('/editor')
+def practiceditor():
+    question = {
+        "title": "Practice question",
+        "description": "You can write code in code editor and then ",
+        "function_name": "fuction",
+        "parameters":"a"
+    }
+    return render_template('editor.html',question=question)
 @app.route('/run_code', methods=['POST'])
 def run_code():
     code = request.json.get('code')
