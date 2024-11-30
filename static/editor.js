@@ -6,52 +6,6 @@ const form = document.getElementById('codeForm');
 const warningMessage = document.getElementById('warningMessage');
 let warningCount = 0;
 let warningCoun = 0;
-function isFullScreen() {
-    return window.innerWidth === screen.width && window.innerHeight === screen.height;
-}
-
-function handleScreenResize() {
-    if (isFullScreen()) {
-        // Enable code editor if full screen
-        codeArea.disabled = false;
-        warningMessage.style.display = 'none';
-    } else {
-        // Disable code editor if not full screen
-        codeArea.disabled = true;
-        codeArea.value = ""; // Optional: Clear the editor
-        warningMessage.textContent = "Code editor is disabled because the window is not in full screen.";
-        warningMessage.style.display = 'block';
-    }
-}
-
-// Add event listener for window resize
-window.addEventListener('resize', handleScreenResize);
-
-// Initial check when the page loads
-handleScreenResize();
-function handleScreenResize1() {
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
-
-    // Set thresholds for disabling the code editor (e.g., width < 768px or height < 500px)
-    if (screenWidth < 1200 || screenHeight < 500) {
-        // Disable code editor and show warning
-        codeArea.disabled = true;
-        codeArea.value = ""; // Optional: Clear the editor
-        warningMessage.textContent = "Code editor is disabled because the screen is too small or split.";
-        warningMessage.style.display = 'block';
-    } else {
-        // Enable code editor and hide warning
-        codeArea.disabled = false;
-        warningMessage.style.display = 'none';
-    }
-}
-
-// Add event listener for window resize
-window.addEventListener('resize', handleScreenResize1);
-
-// Call the function initially to check the screen size on page load
-handleScreenResize1();
 runCodeBtn.addEventListener('click', async (event) => {
     event.preventDefault(); // Prevent form submission
     const code = codeArea.value;
@@ -63,7 +17,7 @@ runCodeBtn.addEventListener('click', async (event) => {
         
         // Refresh the page after 3 warnings
         if (warningCoun >= 5) {
-            alert('You have received 3 warnings. The page will now refresh.');
+            alert('You have received 5 warnings. The page will now refresh.');
             window.location.reload(); // Refresh the page
         }
 
@@ -90,24 +44,61 @@ runCodeBtn.addEventListener('click', async (event) => {
 submitCodeBtn.addEventListener('click', async (event) => {
     event.preventDefault(); // Prevent form submission
     const code = codeArea.value;
+    if (code.trim() === "") {
+        alert('Please write some code before submitting.');
+        return;
+    }
+    warningMessage.style.display = 'none';
+    resultDiv.textContent = 'Submiting...';
+    resultDiv.classList.remove('error');
+
+    // Get the question ID (you should pass this from the server to the editor)
+    const questionId = window.location.pathname.split('/').pop(); // assuming URL is like /editor/123
 
     try {
-        const response = await fetch(`/submit_code/{{ question.id }}`, {
+        const response = await fetch(`/submit_code/${questionId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code })
         });
+
         const data = await response.json();
+
         if (data.status === 'success') {
-            alert('All test cases passed!');
+            resultDiv.textContent = 'Code passed all test cases!';
+            resultDiv.classList.add('success');
+            resultDiv.classList.remove('error');
         } else {
-            alert('Some test cases failed. Check results.');
+            resultDiv.textContent = 'Code failed some test cases.';
+            resultDiv.classList.add('error');
+            resultDiv.classList.remove('success');
+
+            // Display only failed test cases and stop once one fails
+            let failedResultsHtml = '<ul>';
+            for (let result of data.results) {
+                const { input, expected, output, passed } = result;
+                if (!passed) {
+                    failedResultsHtml += `
+                        <li style="color: red;">
+                            <strong>Input:</strong> ${input} <br>
+                            <strong>Expected Output:</strong> ${expected} <br>
+                            <strong>Output:</strong> ${output} <br>
+                            <strong>Status:</strong> Failed
+                        </li>
+                    `;
+                    break; // Exit loop after the first failure
+                }
+            }
+            failedResultsHtml += '</ul>';
+            resultDiv.innerHTML = failedResultsHtml;
         }
-        resultDiv.textContent = JSON.stringify(data.results, null, 2);
     } catch (err) {
         resultDiv.textContent = 'Error submitting code.';
+        resultDiv.classList.add('error');
     }
 });
+
+
 codeArea.addEventListener('keydown', function(event) {
     const cursorPosition = codeArea.selectionStart;
     const codeText = codeArea.value;
@@ -160,8 +151,29 @@ codeArea.addEventListener('keydown', function(event) {
         event.preventDefault(); // Prevent default Enter behavior
     }
 });
+function handleScreenResize() {
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
 
+    // Set thresholds for disabling the code editor (e.g., width < 768px or height < 500px)
+    if (screenWidth < 1200 || screenHeight < 500) {
+        // Disable code editor and show warning
+        codeArea.disabled = true;
+        codeArea.value = ""; // Optional: Clear the editor
+        warningMessage.textContent = "Code editor is disabled because the screen is too small or split.";
+        warningMessage.style.display = 'block';
+    } else {
+        // Enable code editor and hide warning
+        codeArea.disabled = false;
+        warningMessage.style.display = 'none';
+    }
+}
 
+// Add event listener for window resize
+window.addEventListener('resize', handleScreenResize);
+
+// Call the function initially to check the screen size on page load
+handleScreenResize();
 // Disable copy, cut, paste, and drag-and-drop in the textarea
 codeArea.addEventListener('copy', function(event) {
     event.preventDefault();
@@ -207,5 +219,3 @@ document.addEventListener('visibilitychange', function() {
         }
     }
 });
-
-

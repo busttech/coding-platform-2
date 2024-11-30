@@ -14,7 +14,7 @@
         </div>
         <div class="code-section">
             <form id="codeForm">
-                <textarea id="code" placeholder="Write your Python code here..."></textarea>
+                <textarea id="code">def {{question.function_name}}():</textarea>
                 <br>
                 <button id="runCode">Run Code</button>
                 <button id="submitCode">Submit Code</button>
@@ -26,5 +26,3 @@
     <script src="{{url_for('static', filename='editor.js')}}"></script>
 </body>
 </html>
-
-

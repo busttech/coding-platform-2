@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submissions - {{ question.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='submissions.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Submissions for Question: {{ question.title }}</h1>
+        <p>{{ question.description }}</p>
+        <h2>All Submissions</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Code</th>
+                    <th>Result</th>
+                    <th>View Code</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submissions %}
+                    <tr>
+                        <td>
+                            <pre>{{ submission.student_code }}</pre>
+                        </td>
+                        <td>{{ submission.result }}</td>
+                        <td>
+                            <button onclick="viewCode({{ submission.id }})">View Code</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function viewCode(submissionId) {
+            alert('View code for submission ' + submissionId);
+            // You can implement this functionality to show the code in a modal or separate page.
+        }
+    </script>
+</body>
+</html>
