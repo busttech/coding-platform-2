@@ -28,6 +28,7 @@ form.addEventListener('submit', async (e) => {
     const title = document.getElementById('title').value;
     const description = document.getElementById('description').value;
     const functionName = document.getElementById('functionName').value;
+    const parameters = document.getElementById('parameters').value;
 
     // Gather all test cases (inputs and expected outputs)
     const testCases = [];
@@ -46,6 +47,7 @@ form.addEventListener('submit', async (e) => {
             title,
             description,
             function_name: functionName,
+            parameters,
             test_cases: testCases
         })
     });
