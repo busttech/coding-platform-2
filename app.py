@@ -50,7 +50,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if username == 'teacher' and password == ' ':
+        if username == 'room330' and password == '329330':
             session['logged_in'] = True
             return redirect(url_for('teacher'))
         else:
@@ -100,7 +100,7 @@ def practiceditor():
     question = {
         "title": "Practice question",
         "description": "You can write code in code editor and then ",
-        "function_name": "fuction",
+        "function_name": "function",
         "parameters":"a"
     }
     return render_template('editor.html',question=question)
