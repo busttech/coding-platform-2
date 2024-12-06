@@ -11,7 +11,7 @@ app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CA_CERT_PATH = os.path.join(BASE_DIR, 'certs/isrgrootx1.pem')
 app.config['SQLALCHEMY_DATABASE_URI'] = (
-    f'mysql+pymysql://3QkyK3w5GoLuPjo.root:r8jhtPzQbNRtJaSF@gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/tes1?ssl_ca={CA_CERT_PATH}'
+    f'mysql+pymysql://3QkyK3w5GoLuPjo.root:r8jhtPzQbNRtJaSF@gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/tes12?ssl_ca={CA_CERT_PATH}'
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
