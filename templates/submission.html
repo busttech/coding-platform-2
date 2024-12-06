@@ -16,7 +16,9 @@
                 <tr>
                     <th>Student Code</th>
                     <th>Result</th>
-                    <th>View Code</th>
+                    <th>Email</th>
+                    <th>Name</th>
+                    <th>branch</th>
                 </tr>
             </thead>
             <tbody>
@@ -26,8 +28,9 @@
                             <pre>{{ submission.student_code }}</pre>
                         </td>
                         <td>{{ submission.result }}</td>
-                        <td>
-                            <button onclick="viewCode({{ submission.id }})">View Code</button>
+                        <td>{{ submission.email}}</td>
+                        <td>{{submission.name}}</td>
+                        <td>{{submission.branch}}</td>
                         </td>
                     </tr>
                 {% endfor %}

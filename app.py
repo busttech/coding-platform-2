@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request, jsonify, redirect, session, url_for
+from flask import Flask, render_template, request, jsonify, redirect, session, url_for,flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail,Message
 import subprocess
 import sys
 import os
 import tempfile
+import random
 
 app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -12,6 +14,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
     f'mysql+pymysql://3QkyK3w5GoLuPjo.root:r8jhtPzQbNRtJaSF@gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/tes1?ssl_ca={CA_CERT_PATH}'
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['MAX_CONTENT_LENGTH'] = 1000 * 1024 * 1024
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_USERNAME'] = 'tarun1940v@gmail.com'
+app.config['MAIL_PASSWORD'] = 'soih zgac nsmh noxv'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+
 db = SQLAlchemy(app)
 app.secret_key = os.urandom(24)
 
@@ -34,33 +44,47 @@ class Submission(db.Model):
     student_code = db.Column(db.Text, nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
     result = db.Column(db.String(16), nullable=False)
+    email= db.Column(db.String(100), nullable=False)
+    name= db.Column(db.String(100), nullable=False)
+    branch= db.Column(db.String(100), nullable=False)
+
 class SubmissionAll(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_code = db.Column(db.Text, nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
     result = db.Column(db.String(16), nullable=False)
-
-
+    email= db.Column(db.String(100), nullable=False)
+    name= db.Column(db.String(100), nullable=False)
+    branch= db.Column(db.String(100), nullable=False)
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    branch = db.Column(db.String(100), nullable=False)
+    password = db.Column(db.String(128))
+    is_active = db.Column(db.Boolean, default=False)
+    activation_code = db.Column(db.String(6), nullable=True)
+mail = Mail(app)
 @app.route("/")
 def home():
     return render_template('index.html')
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
+@app.route('/logint', methods=['GET', 'POST'])
+def logint():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         if username == 'room330' and password == '329330':
-            session['logged_in'] = True
+            session['logged_in_teacher'] = True
             return redirect(url_for('teacher'))
         else:
-            return render_template('login.html', error="Invalid credentials, please try again.")
-    return render_template('login.html')
+            return render_template('logint.html', error="Invalid credentials, please try again.")
+    return render_template('logint.html')
 
 @app.route('/teacher', methods=['GET', 'POST'])
 def teacher():
-    if 'logged_in' not in session:
-        return redirect(url_for('login'))
+    if 'logged_in_teacher' not in session:
+        return redirect(url_for('logint'))
     if request.method == 'POST':
         data = request.json
         question = Question(
@@ -81,9 +105,84 @@ def teacher():
         db.session.commit()
         return jsonify({'message': 'Question added successfully!'}), 201
     return render_template('teacher.html')
+@app.route('/loginsi')
+def loginsi():
+    return render_template('loginsi.html')
 
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        email = request.form['email']
+        name = request.form['name']
+        branch = request.form['branch']
+        password =request.form['password']
+        
+        # Check if the email already exists in the database
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            if existing_user.is_active:
+                flash('Email is already registered. Please log in or use a different email.', 'danger')
+                return redirect(url_for('signup'))
+        
+        # Generate activation code
+        activation_code = str(random.randint(100000, 999999))
+        
+        # Store the new user in the database
+        new_user = User(email=email, name=name, branch=branch, activation_code=activation_code,password=password)
+        db.session.add(new_user)
+        db.session.commit()
+        session['a'] = email
+        
+        msg = Message('Activation Code', sender='nonreplaygmail.com', recipients=[email])
+        msg.body = f'Hello {name},\n\nYour activation code is: {activation_code}\n\nThank you!'
+        mail.send(msg)
+        
+        flash('Activation code sent to your email. Please activate your account.', 'info')
+        return redirect(url_for('activate', email=email))
+    return render_template('signup.html')
+
+
+@app.route('/activate', methods=['GET', 'POST'])
+def activate():
+    email = session.get('a')
+    if request.method == 'POST':
+        email = session.get('a')
+        code = request.form['code']
+        user = User.query.filter_by(email=email).first()
+        if user and user.activation_code == code:
+            user.is_active = True
+            db.session.commit()
+            print("User  activated successfully.")
+            return redirect(url_for('login'))
+        else:
+            flash('Invalid activation code. Please try again.', 'danger')
+    return render_template('activate.html', email=email)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user = User.query.filter_by(email=email).first()
+        print(user)
+
+        if user and user.is_active and user.password==password:
+            session['email'] = email
+            flash('Login successful!', 'success')
+            session["login_completed_student"] = True
+            return redirect(url_for('student'))
+        else:
+            return render_template('login.html', error="Invalid credentials, please try again.")
+    return render_template('login.html')
+@app.route('/logout')
+def logout():
+    session.pop('email', None)
+    flash('Logged out successfully!', 'info')
+    return redirect(url_for('login'))
 @app.route('/student')
 def student():
+    if 'login_completed_student' not in session:
+        return redirect(url_for('loginsi'))
     questions = Question.query.all()
     return render_template('student.html', questions=questions)
 @app.route('/Allquestions')
@@ -148,32 +247,43 @@ def submit_code(question_id):
         except Exception as e:
             results.append({'error': str(e)})
     if all_passed:
-        submission = Submission(student_code=code, question_id=question_id, result="Passed")
+        n = User.query.filter_by(email = session.get("email")).first()
+        submission = Submission(student_code=code, question_id=question_id, email= session.get("email"),name= n.name ,branch = n.branch,result="Passed")
         db.session.add(submission)
         db.session.commit()
     elif not all_passed :
-        submissiondsd = SubmissionAll(student_code=code, question_id=question_id, result="Passed" if all_passed else "Failed")
+        n = User.query.filter_by(email = session.get("email")).first()
+        submissiondsd = SubmissionAll(student_code=code, question_id=question_id, email= session.get("email"), name= n.name ,branch = n.branch,result="Failed")
         db.session.add(submissiondsd)
         db.session.commit()
     return jsonify({'results': results, 'status': 'success' if all_passed else 'failure'})
 
 @app.route('/passedsub/<int:question_id>')
 def view_submissions(question_id):
-    if 'logged_in' not in session:
-        return redirect(url_for('login'))
+    if 'logged_in_teacher' not in session:
+        return redirect(url_for('logint'))
     question = Question.query.get_or_404(question_id)
     submissions = Submission.query.filter_by(question_id=question_id).all()
     has_passed_submission = any(submission.result == 'Passed' for submission in submissions)
     return render_template('submission.html', question=question, submissions=submissions, has_passed_submission=has_passed_submission)
 @app.route('/failedsub/<int:question_id>')
 def view_failed_submissions(question_id):
+    if 'logged_in_teacher' not in session:
+        return redirect(url_for('logint'))
     question = Question.query.get_or_404(question_id)
     submissions = SubmissionAll.query.filter_by(question_id=question_id).all()
     return render_template('submission.html', question=question, submissions=submissions)
-@app.route('/logout')
-def logout():
+@app.route('/logoutt')
+def logoutt():
     session['logged_in'] = False
-    return redirect(url_for("login"))
+    return redirect(url_for("logint"))
+@app.route("/dropalllll12121212fdfjdf")
+def dropalll():
+    with app.app_context():
+        db.drop_all()
+        db.session.commit()
+        print("All tables dropped!")
+    return render_template("index.html")
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
