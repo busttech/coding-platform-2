@@ -277,6 +277,24 @@ def view_failed_submissions(question_id):
 def logoutt():
     session['logged_in'] = False
     return redirect(url_for("logint"))
+@app.route('/profile')
+def profile():
+    if 'login_completed_student' not in session:
+        return redirect(url_for('loginsi'))
+    
+    email = session.get('email')
+    user = User.query.filter_by(email=email).first()
+    
+    # Get all submissions for this user
+    submissionsp = Submission.query.filter_by(email=email).all()
+    submissionsf = SubmissionAll.query.filter_by(email=email).all()
+    total_submissions = len(submissionsp+submissionsf)
+    sp= len(submissionsp)
+    
+    # Calculate accuracy as percentage
+    accuracy = (sp / total_submissions * 100) if total_submissions > 0 else 0
+    
+    return render_template('profile.html', user=user, accuracy=accuracy)
 @app.route("/dropalllll12121212fdfjdf")
 def dropalll():
     with app.app_context():
