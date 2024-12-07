@@ -300,7 +300,7 @@ def profile():
         .distinct()
         .all()
     )
-    so = len(so)
+    so = len(solved_questions)
     
     # Calculate accuracy as percentage
     accuracy = (sp / total_submissions * 100) if total_submissions > 0 else 0
