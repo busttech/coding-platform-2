@@ -290,11 +290,18 @@ def profile():
     submissionsf = SubmissionAll.query.filter_by(email=email).all()
     total_submissions = len(submissionsp+submissionsf)
     sp= len(submissionsp)
+    solved_questions = (
+        db.session.query(Submission.question_id)
+        .filter_by(email=email, result='Passed')
+        .distinct()
+        .all()
+    )
+    so = len(so)
     
     # Calculate accuracy as percentage
     accuracy = (sp / total_submissions * 100) if total_submissions > 0 else 0
     
-    return render_template('profile.html', user=user, accuracy=accuracy)
+    return render_template('profile.html', user=user, accuracy=accuracy,so=so)
 @app.route("/dropalllll12121212fdfjdf")
 def dropalll():
     with app.app_context():
