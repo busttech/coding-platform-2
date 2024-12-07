@@ -123,6 +123,10 @@ def signup():
             if existing_user.is_active:
                 flash('Email is already registered. Please log in or use a different email.', 'danger')
                 return redirect(url_for('signup'))
+            else:
+                db.session.delete(existing_user)
+                db.session.commit()
+
         
         # Generate activation code
         activation_code = str(random.randint(100000, 999999))
