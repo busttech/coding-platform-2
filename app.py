@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, session, url_for,flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail,Message
+import pandas as pd
 import subprocess
 import sys
 import os
@@ -310,7 +311,7 @@ def profile():
 @app.route('/class_report')
 def class_report():
     # Fetch data from the database
-    students = User.query.all()
+    students = User.query.filter_by(is_active=True)
     submissions = Submission.query.all()
     failed_submissions = SubmissionAll.query.all()
 
@@ -323,7 +324,9 @@ def class_report():
         passed_questions = len(
             {sub.question_id for sub in submissions if sub.email == student.email and sub.result == "Passed"}
         )
-        accuracy = (passed_questions / total_submissions * 100) if total_submissions > 0 else 0
+        submissionsp = Submission.query.filter_by(email=student.email).all()
+
+        accuracy = (len(submissionsp) / total_submissions * 100) if total_submissions > 0 else 0
 
         student_data.append({
             "Name": student.name,
