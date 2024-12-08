@@ -180,6 +180,7 @@ def login():
     return render_template('login.html')
 @app.route('/logout')
 def logout():
+    session["login_completed_student"] = False
     session.pop('email', None)
     flash('Logged out successfully!', 'info')
     return redirect(url_for('login'))
@@ -279,7 +280,7 @@ def view_failed_submissions(question_id):
     return render_template('submission.html', question=question, submissions=submissions)
 @app.route('/logoutt')
 def logoutt():
-    session['logged_in'] = False
+    session['logged_in_teacher'] = False
     return redirect(url_for("logint"))
 @app.route('/profile')
 def profile():
@@ -306,6 +307,39 @@ def profile():
     accuracy = (sp / total_submissions * 100) if total_submissions > 0 else 0
     
     return render_template('profile.html', user=user, accuracy=accuracy,so=so)
+@app.route('/class_report')
+def class_report():
+    # Fetch data from the database
+    students = User.query.all()
+    submissions = Submission.query.all()
+    failed_submissions = SubmissionAll.query.all()
+
+    # Process data into a DataFrame
+    student_data = []
+    for student in students:
+        total_submissions = len(
+            [sub for sub in submissions + failed_submissions if sub.email == student.email]
+        )
+        passed_questions = len(
+            {sub.question_id for sub in submissions if sub.email == student.email and sub.result == "Passed"}
+        )
+        accuracy = (passed_questions / total_submissions * 100) if total_submissions > 0 else 0
+
+        student_data.append({
+            "Name": student.name,
+            "Email": student.email,
+            "Branch": student.branch,
+            "Solved Questions": passed_questions,
+            "Total Submissions": total_submissions,
+            "Accuracy (%)": round(accuracy, 2)
+        })
+
+    # Create a DataFrame
+    df = pd.DataFrame(student_data)
+
+    # Render the report as an HTML table
+    return render_template('class_report.html', table=df.to_html(classes='table table-striped', index=False))
+
 @app.route("/dropalllll12121212fdfjdf")
 def dropalll():
     with app.app_context():
