@@ -119,7 +119,12 @@ h1 {
 .view-btn:hover {
     background-color: #4CAF50;
 }
-
+.des{
+    height: 100px;
+}
+.desp{
+    height: 50px;
+}
 /* Responsive design */
 @media (max-width: 768px) {
     .container {
@@ -134,4 +139,5 @@ h1 {
         gap: 15px;
     }
 }
+
 
