@@ -170,7 +170,8 @@ def login():
         password = request.form['password']
         user = User.query.filter_by(email=email).first()
         print(user)
-
+        if(user == None):
+            return redirect(url_for("/signup"))
         if user and user.is_active and user.password==password:
             session['email'] = email
             flash('Login successful!', 'success')
