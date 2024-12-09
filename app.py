@@ -182,10 +182,10 @@ def login():
     return render_template('login.html')
 @app.route('/logout')
 def logout():
-    session["login_completed_student"] = False
+    session.pop("login_completed_student", None)
     session.pop('email', None)
     flash('Logged out successfully!', 'info')
-    return redirect(url_for('login'))
+    return redirect(url_for('loginsi'))
 @app.route('/student')
 def student():
     if 'login_completed_student' not in session:
@@ -199,6 +199,8 @@ def showallquestions():
 
 @app.route('/editor/<int:question_id>')
 def editor(question_id):
+    if 'login_completed_student' not in session:
+        return redirect(url_for('loginsi'))
     question = Question.query.get_or_404(question_id)
     return render_template('editor.html', question=question)
 @app.route('/editor')
@@ -282,7 +284,7 @@ def view_failed_submissions(question_id):
     return render_template('submission.html', question=question, submissions=submissions)
 @app.route('/logoutt')
 def logoutt():
-    session['logged_in_teacher'] = False
+    session.pop("logged_in_teacher", None)
     return redirect(url_for("logint"))
 @app.route('/profile')
 def profile():
