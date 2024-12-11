@@ -7,7 +7,6 @@ import sys
 import os
 import tempfile
 import random
-
 app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CA_CERT_PATH = os.path.join(BASE_DIR, 'certs/isrgrootx1.pem')
