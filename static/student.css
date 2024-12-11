@@ -1,11 +1,8 @@
-/* Basic reset */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-
-/* Global font settings */
 body {
     font-family: 'Roboto', sans-serif;
     background-color: #f5f6f8;
@@ -120,7 +117,7 @@ h1 {
     background-color: #4CAF50;
 }
 .des{
-    height: 100px;
+    height: 85px;
 }
 .desp{
     height: 64px;
@@ -139,5 +136,3 @@ h1 {
         gap: 15px;
     }
 }
-
-
